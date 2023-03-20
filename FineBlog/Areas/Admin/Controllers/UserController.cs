@@ -9,5 +9,12 @@ namespace FineBlog.Areas.Admin.Controllers
         {
             return View();
         }
+
+        //原本為Admin/User/Login, 改為localhost/Login
+        [HttpGet("Login")]
+        public IActionResult Login()
+        {
+            return View();
+        }
     }
 }
