@@ -32,7 +32,12 @@ namespace FineBlog.Areas.Admin.Controllers
         [HttpGet("Login")]
         public IActionResult Login()
         {
-            return View(new LoginVM());
+            if (!HttpContext.User.Identity!.IsAuthenticated)
+            {
+                return View(new LoginVM());
+            }
+
+            return RedirectToAction("Index", "User", new { area = "Admin" });
         }
 
         [HttpPost("Login")]
@@ -59,6 +64,14 @@ namespace FineBlog.Areas.Admin.Controllers
             _notification.Success("登入成功");
             return RedirectToAction("Index", "User", new { area = "Admin" });
 
+        }
+
+        [HttpPost]
+        public IActionResult Logout()
+        {
+            _signInManager.SignOutAsync();
+            _notification.Success("成功登出");
+            return RedirectToAction("Index", "Home", new { area = "" });
         }
     }
 }
