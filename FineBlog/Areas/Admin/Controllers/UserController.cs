@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using FineBlog.Models;
 using FineBlog.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,9 +24,18 @@ namespace FineBlog.Areas.Admin.Controllers
             _notification = notification;
         }
 
-        public IActionResult Index()
+        [Authorize]
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var user = await _userManager.Users.ToListAsync();
+            var vm = user.Select(x => new UserVM()
+            {
+                Id = x.Id,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                UserName = x.UserName
+            }).ToList();  //ToList() 對應View    @model List<FineBlog.ViewModels.UserVM>
+            return View(vm);
         }
 
         //原本為Admin/User/Login, 改為localhost/Login
