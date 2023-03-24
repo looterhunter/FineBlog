@@ -1,5 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using FineBlog.Models;
+using FineBlog.Utilities;
 using FineBlog.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -24,7 +25,7 @@ namespace FineBlog.Areas.Admin.Controllers
             _notification = notification;
         }
 
-        [Authorize]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.Users.ToListAsync();
@@ -35,6 +36,62 @@ namespace FineBlog.Areas.Admin.Controllers
                 LastName = x.LastName,
                 UserName = x.UserName
             }).ToList();  //ToList() 對應View    @model List<FineBlog.ViewModels.UserVM>
+            return View(vm);
+        }
+
+        [Authorize(Roles ="Admin")]
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View(new RegisterVM());
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterVM vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(vm);
+            }
+
+            var checkUserByEmail = await _userManager.FindByEmailAsync(vm.Email);
+            if(checkUserByEmail != null)
+            {
+                _notification.Error("Email已存在");
+                return View(vm);
+            }
+
+            var checkUserByUsername = await _userManager.FindByNameAsync(vm.UserName);
+            if (checkUserByUsername != null)
+            {
+                _notification.Error("Username已存在");
+                return View(vm);
+            }
+
+            var applicationUser = new ApplicationUser()
+            {
+                UserName = vm.UserName,
+                FirstName = vm.FisrtName,
+                LastName = vm.LastName,
+                Email = vm.Email
+            };
+
+            var result = await _userManager.CreateAsync(applicationUser, vm.Password);
+            if (result.Succeeded)
+            {
+                if (vm.IsAdmin)
+                {
+                    await _userManager.AddToRoleAsync(applicationUser, WebsiteRoles.WebsiteAdmin);
+                }
+                else
+                {
+                    await _userManager.AddToRoleAsync(applicationUser, WebsiteRoles.WebsiteAuthor);
+                }
+                _notification.Success("註冊成功");
+                return RedirectToAction("Index", "User", new { area = "Admin" });
+            }
+
             return View(vm);
         }
 
