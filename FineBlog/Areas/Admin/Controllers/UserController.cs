@@ -157,7 +157,7 @@ namespace FineBlog.Areas.Admin.Controllers
                 return View(new LoginVM());
             }
 
-            return RedirectToAction("Index", "User", new { area = "Admin" });
+            return RedirectToAction("Index", "Post", new { area = "Admin" });
         }
 
         [HttpPost("Login")]
@@ -182,16 +182,24 @@ namespace FineBlog.Areas.Admin.Controllers
 
             await _signInManager.PasswordSignInAsync(existingUser, vm.Password, vm.RememberMe, true);
             _notification.Success("登入成功");
-            return RedirectToAction("Index", "User", new { area = "Admin" });
+            return RedirectToAction("Index", "Post", new { area = "Admin" });
 
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Logout()
         {
             _signInManager.SignOutAsync();
             _notification.Success("成功登出");
             return RedirectToAction("Index", "Home", new { area = "" });
+        }
+
+        [HttpGet("AccessDenied")]
+        [Authorize]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }

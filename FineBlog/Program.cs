@@ -26,6 +26,7 @@ builder.Services.AddNotyf(config => { config.DurationInSeconds = 10; config.IsDi
 builder.Services.ConfigureApplicationCookie(option =>
 {
     option.LoginPath = "/login";
+    option.AccessDeniedPath = "/AccessDenied";
 });
 
 var app = builder.Build();
