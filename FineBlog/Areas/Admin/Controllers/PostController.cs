@@ -39,11 +39,12 @@ namespace FineBlog.Areas.Admin.Controllers
             var loggedInUserRole = await _userManager.GetRolesAsync(loggedInUser!);
             if (loggedInUserRole[0] == WebsiteRoles.WebsiteAdmin)
             {
-                listOfPosts = await _context.Posts.ToListAsync();
+                //列出全部，權限為admin
                 listOfPosts = await _context.Posts.Include(x => x.ApplicationUser).ToListAsync();
             }
             else
             {
+                //只列出自已的部份，條件為登入者Id
                 listOfPosts = await _context.Posts.Include(x => x.ApplicationUser).Where(x=>x.ApplicationUser!.Id == loggedInUser!.Id).ToListAsync();
             }
 
