@@ -12,7 +12,7 @@
         </div>
 
         <div class="card-body">
-            <form asp-action="Create" asp-controller="Post" asp-area="Admin" method="post">
+            <form asp-action="Create" asp-controller="Post" asp-area="Admin" method="post" enctype="multipart/form-data">
                 
                 <div class="row mb-2">
                     <div class="col-9">
@@ -35,12 +35,12 @@
 
                     <div class="col-3">
                         <div class="mb-2">
-                            <img src="~/thumbnail/default_image.png" class="img-fluid" />
+                            <img src="~/thumbnails/default_image.png" class="img-fluid" />
                         </div>
                         <div class="mb-2">
                             <label>Description</label>
-                            <input type="file" asp-for="Thumbnal" class="custom-file" />
-                            <span asp-validation-for="Thumbnal" class="text-danger"></span>
+                            <input type="file" asp-for="Thumbnail" class="custom-file" />
+                            <span asp-validation-for="Thumbnail" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
