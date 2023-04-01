@@ -111,6 +111,8 @@ namespace FineBlog.Areas.Admin.Controllers
 
             if (loggedInUserRole[0] == WebsiteRoles.WebsiteAdmin || loggedInUser?.Id == post?.ApplicationUserId)
             {
+                _ = DeleteImage(post.ThumbnailUrl);
+
                 _context.Posts.Remove(post!);
                 await _context.SaveChangesAsync();
                 _notification.Success("Post刪除成功");
@@ -125,11 +127,34 @@ namespace FineBlog.Areas.Admin.Controllers
             var folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "thumbnails");
             uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
             var filePath = Path.Combine(folderPath, uniqueFileName);
-            using(FileStream fileStream = System.IO.File.Create(filePath))
+            using (FileStream fileStream = System.IO.File.Create(filePath))
             {
-                file.CopyTo(fileStream);
+                file.CopyTo(fileStream);//上傳的檔案內容file，copyto新的檔案內容filePath
             }
+            //另一種上傳檔案 寫檔方法，
+            /*
+            var fileStream = new FileStream(filePath, FileMode.Create);
+            file.CopyTo(fileStream);
+            stream.Close();
+            */
+
             return uniqueFileName;
+        }
+
+        private bool DeleteImage(string fileName)
+        {
+            if(fileName == null) { return false; }
+
+            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "thumbnails",fileName);
+            FileInfo fileInfo = new FileInfo(filePath);
+            if(fileInfo != null)
+            {
+                System.IO.File.Delete(filePath);
+                fileInfo.Delete();
+            }
+
+            return true;
+
         }
     }
 }
