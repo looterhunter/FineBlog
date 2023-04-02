@@ -111,7 +111,7 @@ namespace FineBlog.Areas.Admin.Controllers
 
             if (loggedInUserRole[0] == WebsiteRoles.WebsiteAdmin || loggedInUser?.Id == post?.ApplicationUserId)
             {
-                _ = DeleteImage(post.ThumbnailUrl);
+                _ = DeleteImage(post.ThumbnailUrl); //有可能為空值(null)
 
                 _context.Posts.Remove(post!);
                 await _context.SaveChangesAsync();
@@ -119,6 +119,63 @@ namespace FineBlog.Areas.Admin.Controllers
                 return RedirectToAction("Index", "Post", new { area = "Admin" });
             }
             return View();
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var post = await _context.Posts.FirstOrDefaultAsync(x => x.Id == id);
+            if(post == null)
+            {
+                _notification.Error("找不到此文章");
+                return RedirectToAction("Index","Post",new {area="Admin"});
+            }
+
+            var loggedInUser = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == User.Identity!.Name);
+            var loggedInUserRole = await _userManager.GetRolesAsync(loggedInUser!);
+
+            if (loggedInUserRole[0] != WebsiteRoles.WebsiteAdmin && loggedInUser?.Id != post?.ApplicationUserId)
+            {
+                _notification.Error("你未受權unAuthorize");
+                return RedirectToAction("Index", "Post", new { area = "Admin" });
+            }
+
+            var vm = new CreatePostVM()
+            {
+                Id = post.Id,
+                Title = post.Title,
+                ShortDescription = post.ShortDescription,
+                Description = post.Description,
+                ThumbnailUrl = post.ThumbnailUrl,
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(CreatePostVM vm)
+        {
+            if (!ModelState.IsValid) { return View(vm); }
+
+            var post = await _context.Posts.FirstOrDefaultAsync(x => x.Id == vm.Id);
+            if(post == null)
+            {
+                _notification.Error("找不到此文章");
+                return RedirectToAction("Index", "Post", new { area = "Admin" });
+            }
+
+            post.Title = vm.Title;
+            post.ShortDescription = vm.ShortDescription;
+            post.Description = vm.Description;
+            if(vm.Thumbnail != null)
+            {
+                _ = DeleteImage(post.ThumbnailUrl); //先刪除舊的圖片
+                post.ThumbnailUrl = UploadImage(vm.Thumbnail);
+            }
+            await _context.SaveChangesAsync();
+            _notification.Success("文章Post更新成功");
+            return RedirectToAction("Index", "Post", new { area = "Admin" });
         }
 
         private string UploadImage(IFormFile file)
@@ -145,7 +202,7 @@ namespace FineBlog.Areas.Admin.Controllers
         {
             if(fileName == null) { return false; }
 
-            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "thumbnails",fileName);
+            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "thumbnails", fileName);
             FileInfo fileInfo = new FileInfo(filePath);
             if(fileInfo != null)
             {

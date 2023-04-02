@@ -13,7 +13,6 @@ namespace FineBlog.ViewModels
         public string? ApplicationUserId { get; set; }
         public string? Description { get; set; }
         public string? ThumbnailUrl { get; set; }
-
         public IFormFile? Thumbnail { get; set; }
     }
 }
