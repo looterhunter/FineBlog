@@ -48,7 +48,60 @@
                 <hr class="my-4" />
             }
             <!-- Pager-->
-            <div class="d-flex justify-content-end mb-4"><a class="btn btn-primary text-uppercase" href="#!">Older Posts →</a></div>
+            @*<div class="d-flex justify-content-end mb-4"><a class="btn btn-primary text-uppercase" href="#!">Older Posts →</a></div>*@
+
+            <div class="d-flex justify-content-end mb-4">
+                <!-- 顯示分頁連結 -->
+                @if (ViewBag.PagingInfo != null)
+                {
+                    var pagingInfo = ViewBag.PagingInfo as PagingInfo;
+                    if (pagingInfo!.TotalPages > 1)
+                    {
+                        <ul class="pagination">
+                            @if (pagingInfo.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" asp-controller="Home" asp-action="Index" asp-route-page="1">&Lang;</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" asp-controller="Home" asp-action="Index" asp-route-page="@(pagingInfo.CurrentPage - 1)">&lang;</a>
+                                </li>
+
+                            }
+                            @*@for (int i = 1; i <= pagingInfo.TotalPages; i++)*@ @*這是顯示全部數量的分頁*@
+                            @*只顯示3個分頁數*@
+                            @foreach (var i in pagingInfo.GetDisplayedPages())
+                            {
+                                if (i == pagingInfo.CurrentPage)
+                                {
+                                    <li class="page-item active">
+                                        @*<span>@i test</span>*@
+                                        <a class="page-link">@i</a>
+                                    </li>
+
+                                }
+                                else
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Home" asp-action="Index" asp-route-page="@i">@i</a>
+                                    </li>
+                                }
+                            }
+                            @if (pagingInfo.CurrentPage < pagingInfo.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" asp-controller="Home" asp-action="Index" asp-route-page="@(pagingInfo.CurrentPage + 1)">&rang;</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" asp-controller="Home" asp-action="Index" asp-route-page="@pagingInfo.TotalPages">&Rang;</a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                }
+
+            </div>
+
         </div>
     </div>
 </div>

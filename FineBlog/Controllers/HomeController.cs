@@ -18,15 +18,30 @@ namespace FineBlog.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int page = 1, int pageSize = 5)
         {
-            var vm = new HomeVM();
             var settings = _context.Settings.ToList();
+            var posts = _context.Posts.Include(x => x.ApplicationUser).ToList();
 
-            vm.Title = settings[0].Title;
-            vm.ShortDescription = settings[0].ShortDescription;
-            vm.ThumbnailUrl = settings[0].ThumbnailUrl;
-            vm.Posts = _context.Posts.Include(x=>x.ApplicationUser).ToList();
+            //分頁
+            var pagingInfo = new PagingInfo()
+            {
+                TotalItems = posts.Count(),
+                ItemsPerPage = pageSize,
+                CurrentPage = page
+            };
+            //每頁要顯示的文章數量
+            posts = posts.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            ViewBag.PagingInfo = pagingInfo;
+
+            var vm = new HomeVM()
+            {
+                Title = settings[0].Title,
+                ShortDescription = settings[0].ShortDescription,
+                ThumbnailUrl = settings[0].ThumbnailUrl,
+                Posts = posts
+            };
+
             return View(vm);
         }
 

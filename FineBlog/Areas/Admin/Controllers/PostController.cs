@@ -31,7 +31,7 @@ namespace FineBlog.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page=1, int pageSize = 5)
         {
             var listOfPosts = new List<Post>();
 
@@ -48,6 +48,17 @@ namespace FineBlog.Areas.Admin.Controllers
                 listOfPosts = await _context.Posts.Include(x => x.ApplicationUser).Where(x=>x.ApplicationUser!.Id == loggedInUser!.Id).ToListAsync();
             }
 
+            //分頁
+            var pagingInfo = new PagingInfo()
+            {
+                TotalItems = listOfPosts.Count(),
+                ItemsPerPage = pageSize,
+                CurrentPage = page
+            };
+            //每頁要顯示的文章數量
+            listOfPosts = listOfPosts.Skip((page-1)*pageSize).Take(pageSize).ToList();
+            ViewBag.PagingInfo = pagingInfo;
+
             var listOfPostsVM = listOfPosts.Select(x => new PostVM()
             {
                 Id = x.Id,
@@ -56,6 +67,7 @@ namespace FineBlog.Areas.Admin.Controllers
                 ThumbnailUrl = x.ThumbnailUrl,
                 AuthorName = x.ApplicationUser!.FirstName + " " + x.ApplicationUser!.LastName
             }).ToList();
+
             return View(listOfPostsVM);
         }
 
