@@ -40,12 +40,12 @@ namespace FineBlog.Areas.Admin.Controllers
             if (loggedInUserRole[0] == WebsiteRoles.WebsiteAdmin)
             {
                 //列出全部，權限為admin
-                listOfPosts = await _context.Posts.Include(x => x.ApplicationUser).ToListAsync();
+                listOfPosts = await _context.Posts.Include(x => x.ApplicationUser).OrderByDescending(x => x.CreateDate).ToListAsync();
             }
             else
             {
                 //只列出自已的部份，條件為登入者Id
-                listOfPosts = await _context.Posts.Include(x => x.ApplicationUser).Where(x=>x.ApplicationUser!.Id == loggedInUser!.Id).ToListAsync();
+                listOfPosts = await _context.Posts.Include(x => x.ApplicationUser).Where(x => x.ApplicationUser!.Id == loggedInUser!.Id).OrderByDescending(x => x.CreateDate).ToListAsync();
             }
 
             //分頁

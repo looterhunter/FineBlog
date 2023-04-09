@@ -21,7 +21,7 @@ namespace FineBlog.Controllers
         public IActionResult Index(int page = 1, int pageSize = 5)
         {
             var settings = _context.Settings.ToList();
-            var posts = _context.Posts.Include(x => x.ApplicationUser).ToList();
+            var posts = _context.Posts.Include(x => x.ApplicationUser).OrderByDescending(x => x.CreateDate).ToList();
 
             //分頁
             var pagingInfo = new PagingInfo()
